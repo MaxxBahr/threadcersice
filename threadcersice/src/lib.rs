@@ -25,10 +25,10 @@ trait SendMessage: serde::Serialize + Clone
 trait Receive: for <'a> Deserialize<'a> + Clone
     {
         type Output: PartialEq;
-        fn receive_message(&self) -> Output;
+        fn receive_message(&self) -> Self::Output;
 }
 
-trait Communicate:  Receive<T, F> + Send + for<'a> Deserialize<'a> + Clone + Serialize
+trait Communicate:  Receive + Send + for<'a> Deserialize<'a> + Clone + Serialize
 {
     fn establish_connection(&self) -> bool;
 }

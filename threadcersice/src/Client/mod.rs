@@ -36,9 +36,10 @@ impl SendMessage for Client{
 }
 
 impl Receive for Client{
+    type Output = RespondMessage;
+    
     fn receive_message(&self) -> RespondMessage {
         todo!()
     }
     
-    type Output;
 }
