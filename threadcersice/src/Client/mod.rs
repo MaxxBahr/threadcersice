@@ -1,9 +1,10 @@
+use std::io::{Read, Write};
 use serde::{Serialize, Deserialize};
-use crate::{Addresses, Communicate, Receive, SendMessage, RespondMessage};
+use crate::{Communicate, Receive, SendMessage, Addresses, RespondMessage};
 use std::net::TcpStream;
 
 #[derive(Serialize, Deserialize, Clone)]
-struct Client{
+pub struct Client{
     addr: Addresses,
     msg: String,
 }
@@ -17,20 +18,25 @@ impl Client {
 impl Communicate for Client{
     fn establish_connection(&self) -> bool {
         let mut stream = TcpStream::connect("127.0.0.1:7878").unwrap();
-        let msg_addr = self.addr.as_bytes();
+        let msg_addr = self.addr.to_bytes();
 
-        stream.write_all(msg_addr).unwrap();
+        stream.write_all(&msg_addr).unwrap();
         stream.flush().unwrap();
         true
     }
 }
 
 impl SendMessage for Client{
-    fn send_message(&self) -> bool {
-        todo!()
+    fn send_message(&mut self, msg: String) -> bool {
+        let mut stream = TcpStream::connect("127.0.0.1:7878").unwrap();
+        if let Ok(()) =stream.write_all(msg.as_bytes()){
+            true
+        }else{
+            false
+        }
     }
 
-    fn get_peer_address(&self) -> String {
+    fn get_peer_address(&mut self) -> String {
         todo!()
     }
 }
@@ -38,8 +44,13 @@ impl SendMessage for Client{
 impl Receive for Client{
     type Output = RespondMessage;
     
-    fn receive_message(&self) -> RespondMessage {
-        todo!()
+    fn receive_message(&mut self) -> crate::RespondMessage {
+        let mut stream = TcpStream::connect("127.0.0.1:7878").unwrap();
+        let mut buf = [0; 512];
+        match stream.try_clone().ok().unwrap().read(&mut buf){
+            Ok(size) if size > 0 => RespondMessage::new(format!("{:?}",&buf[..size])),
+            _ => RespondMessage::new("No message delivered".to_string())
+        }
     }
     
 }

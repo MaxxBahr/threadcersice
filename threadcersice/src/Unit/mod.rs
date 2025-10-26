@@ -1,5 +1,5 @@
 use serde::{Serialize, Deserialize};
-use crate::{Addresses, Communicate, Receive, SendMessage};
+use crate::{Addresses, Communicate, Receive, RespondMessage, SendMessage};
 
 #[derive(Serialize, Deserialize, Clone)]
 struct Unit{
@@ -16,26 +16,26 @@ impl Unit{
     }
 }
 
-impl Communicate<Unit, bool> for Unit{
+impl Communicate for Unit{
     fn establish_connection(&self) -> bool {
         todo!()
     }
 }
 
-impl SendMessage<Unit> for Unit{
-    fn send_message(&self) -> bool {
+impl SendMessage for Unit{
+    fn send_message(&mut self, msg: String) -> bool {
         todo!()
     }
 
-    fn get_peer_address(&self) -> String {
+    fn get_peer_address(&mut self) -> String {
         todo!()
     }
 }
 
 impl Receive for Unit{
-    fn receive_message(&self) -> RespondMessage {
+    fn receive_message(&mut self) -> RespondMessage {
         todo!()
     }
     
-    type Output;
+    type Output = RespondMessage;
 }

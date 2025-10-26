@@ -4,31 +4,49 @@ pub mod Client;
 pub mod Server;
 pub mod Unit;
 
-#[derive(Serialize, Deserialize, Clone)]
-enum Addresses{
+#[derive(Serialize, Deserialize, Clone, Debug)]
+pub enum Addresses{
     Client,
     Server,
     Unit
 }
 
+impl Addresses {
+    pub fn to_bytes(&self) -> [u8; 4]{
+        match self{
+            Addresses::Client => 0_i32.to_be_bytes(),
+            Addresses::Server => 1_i32.to_be_bytes(),
+            Addresses::Unit => 2_i32.to_be_bytes(),
+        }
+    }
+}
+
 #[derive(PartialEq)]
-struct RespondMessage{
+pub struct RespondMessage{
     msg: String,
 }
 
-trait SendMessage: serde::Serialize + Clone
-    {
-        fn send_message(&self) -> bool;
-        fn get_peer_address(&self) -> String;
-}
-    
-trait Receive: for <'a> Deserialize<'a> + Clone
-    {
-        type Output: PartialEq;
-        fn receive_message(&self) -> Self::Output;
+impl RespondMessage{
+    pub fn new(msg: String) -> RespondMessage{
+        RespondMessage{
+            msg
+        }
+    }
 }
 
-trait Communicate:  Receive + Send + for<'a> Deserialize<'a> + Clone + Serialize
+pub trait SendMessage: serde::Serialize + Clone
+    {
+        fn send_message(&mut self, message: String) -> bool;
+        fn get_peer_address(&mut self) -> String;
+}
+    
+pub trait Receive: for <'a> Deserialize<'a> + Clone
+    {
+        type Output: PartialEq;
+        fn receive_message(&mut self) -> Self::Output;
+}
+
+pub trait Communicate:  Receive + Send + for<'a> Deserialize<'a> + Clone + Serialize
 {
     fn establish_connection(&self) -> bool;
 }
